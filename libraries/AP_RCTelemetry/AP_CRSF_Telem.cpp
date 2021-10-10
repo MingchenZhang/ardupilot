@@ -765,9 +765,15 @@ void AP_CRSF_Telem::calc_attitude()
 // prepare flight mode data
 void AP_CRSF_Telem::calc_flight_mode()
 {
-    AP_Notify * notify = AP_Notify::get_singleton();
-    if (notify) {
-        hal.util->snprintf(_telem.bcast.flightmode.flight_mode, 16, "%s", notify->get_flight_mode_str());
+    AP_Notify *notify = AP_Notify::get_singleton();
+    if (notify)
+    {
+        hal.util->snprintf(
+            _telem.bcast.flightmode.flight_mode,
+            16,
+            "%s%s",
+            notify->get_flight_mode_str(),
+            hal.util->get_soft_armed() ? "" : "*");
 
         _telem_size = sizeof(AP_CRSF_Telem::FlightModeFrame);
         _telem_type = AP_RCProtocol_CRSF::CRSF_FRAMETYPE_FLIGHT_MODE;

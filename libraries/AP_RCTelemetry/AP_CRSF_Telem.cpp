@@ -880,9 +880,19 @@ void AP_CRSF_Telem::calc_gps()
     _telem.bcast.gps.latitude = htobe32(loc.lat);
     _telem.bcast.gps.longitude = htobe32(loc.lng);
     _telem.bcast.gps.groundspeed = htobe16(roundf(AP::gps().ground_speed() * 100000 / 3600));
-    _telem.bcast.gps.altitude = htobe16(constrain_int16(loc.alt / 100, 0, 5000) + 1000);
+    // _telem.bcast.gps.altitude = htobe16(constrain_int16(loc.alt / 100, 0, 5000) + 1000);
     _telem.bcast.gps.gps_heading = htobe16(roundf(AP::gps().ground_course() * 100.0f));
     _telem.bcast.gps.satellites = AP::gps().num_sats();
+
+    // get relative height from EKF or baro
+    float alt = 0;
+    {
+        AP_AHRS &ahrs = AP::ahrs();
+        WITH_SEMAPHORE(ahrs.get_semaphore());
+        ahrs.get_relative_position_D_home(alt);
+        alt = -alt;
+    }
+    _telem.bcast.gps.altitude = htobe16((uint16_t)constrain_value(alt + 1000, -0.0f, (float)(uint16_t)-1));
 
     _telem_size = sizeof(AP_CRSF_Telem::GPSFrame);
     _telem_type = AP_RCProtocol_CRSF::CRSF_FRAMETYPE_GPS;

@@ -193,13 +193,13 @@ bool AP_CRSF_Telem::process_rf_mode_changes()
 
     // warn the user if their setup is sub-optimal
     if (_telem_bootstrap_msg_pending && !uart->is_dma_enabled()) {
-        gcs().send_text(MAV_SEVERITY_WARNING, "%s: running on non-DMA serial port", get_protocol_string());
+        // gcs().send_text(MAV_SEVERITY_WARNING, "%s: running on non-DMA serial port", get_protocol_string());
     }
     // note if option was set to show LQ in place of RSSI
     bool current_lq_as_rssi_active = bool(rc().use_crsf_lq_as_rssi());
     if(_telem_bootstrap_msg_pending || _noted_lq_as_rssi_active != current_lq_as_rssi_active){
         _noted_lq_as_rssi_active = current_lq_as_rssi_active;
-        gcs().send_text(MAV_SEVERITY_INFO, "%s: RSSI now displays %s", get_protocol_string(), current_lq_as_rssi_active ? " as LQ" : "normally");
+        // gcs().send_text(MAV_SEVERITY_INFO, "%s: RSSI now displays %s", get_protocol_string(), current_lq_as_rssi_active ? " as LQ" : "normally");
     }
     _telem_bootstrap_msg_pending = false;
 

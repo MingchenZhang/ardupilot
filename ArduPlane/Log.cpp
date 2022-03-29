@@ -173,6 +173,15 @@ struct PACKED log_Nav_Tuning {
 // Write a navigation tuning packet
 void Plane::Log_Write_Nav_Tuning()
 {
+    int32_t target_alt = next_WP_loc.alt;
+    if(control_mode==&mode_fbwb || control_mode==&mode_cruise) {
+        target_alt = target_altitude.amsl_cm;
+#if AP_TERRAIN_AVAILABLE
+        if(target_altitude.terrain_following) {
+            target_alt = target_altitude.terrain_alt_cm;
+        }
+#endif
+    }
     struct log_Nav_Tuning pkt = {
         LOG_PACKET_HEADER_INIT(LOG_NTUN_MSG),
         time_us             : AP_HAL::micros64(),
@@ -185,7 +194,7 @@ void Plane::Log_Write_Nav_Tuning()
         airspeed_error      : airspeed_error,
         target_lat          : next_WP_loc.lat,
         target_lng          : next_WP_loc.lng,
-        target_alt          : next_WP_loc.alt,
+        target_alt          : target_alt,
         target_airspeed     : target_airspeed_cm,
     };
     logger.WriteBlock(&pkt, sizeof(pkt));

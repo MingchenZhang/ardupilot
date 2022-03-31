@@ -297,9 +297,15 @@ int32_t Plane::relative_target_altitude_cm(void)
 void Plane::change_target_altitude(int32_t change_cm)
 {
     target_altitude.amsl_cm += change_cm;
+#if OSD_ENABLED == ENABLED
+    osd.height_target.set(target_altitude.amsl_cm - home.alt);
+#endif
 #if AP_TERRAIN_AVAILABLE
     if (target_altitude.terrain_following && !terrain_disabled()) {
         target_altitude.terrain_alt_cm += change_cm;
+#if OSD_ENABLED == ENABLED
+        osd.height_target.set(target_altitude.terrain_alt_cm);
+#endif
     }
 #endif
 }

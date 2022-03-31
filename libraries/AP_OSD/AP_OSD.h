@@ -184,6 +184,7 @@ private:
     AP_OSD_Setting hgt_abvterr{false, 23, 7};
     AP_OSD_Setting fence{false, 14, 9};
     AP_OSD_Setting rngf{false, 0, 0};
+    AP_OSD_Setting hgt_tgt{false, 0, 0};
 #if HAL_PLUSCODE_ENABLE
     AP_OSD_Setting pluscode{false, 0, 0};
 #endif
@@ -256,6 +257,7 @@ private:
     void draw_hgt_abvterr(uint8_t x, uint8_t y);
     void draw_fence(uint8_t x, uint8_t y);
     void draw_rngf(uint8_t x, uint8_t y);
+    void draw_hgt_tgt(uint8_t x, uint8_t y);
 
 
     struct {
@@ -445,6 +447,8 @@ public:
     AP_Int8 osd_type;
     AP_Int8 font_num;
     AP_Int32 options;
+    
+    AP_Int32 height_target;
 
 #if OSD_ENABLED
     AP_Int8 rc_channel;

@@ -998,6 +998,22 @@ const AP_Param::GroupInfo AP_OSD_Screen::var_info[] = {
     // @Description: Vertical position on screen
     // @Range: 0 15
     AP_SUBGROUPINFO(rngf, "RNGF", 60, AP_OSD_Screen, AP_OSD_Setting),
+    
+    // @Param: HGT_TGT_EN
+    // @DisplayName: HGT_TGT_EN
+    // @Description: Displays target height of altitude hold mode
+    // @Values: 0:Disabled,1:Enabled
+
+    // @Param: HGT_TGT_X
+    // @DisplayName: HGT_TGT_X
+    // @Description: Horizontal position on screen
+    // @Range: 0 29
+
+    // @Param: HGT_TGT_Y
+    // @DisplayName: HGT_TGT_Y
+    // @Description: Vertical position on screen
+    // @Range: 0 15
+    AP_SUBGROUPINFO(hgt_tgt, "HGT_TGT", 61, AP_OSD_Screen, AP_OSD_Setting),
 
     AP_GROUPEND
 };
@@ -2153,6 +2169,11 @@ void AP_OSD_Screen::draw_rngf(uint8_t x, uint8_t y)
     }
 }
 
+void AP_OSD_Screen::draw_hgt_tgt(uint8_t x, uint8_t y)
+{
+    backend->write(x, y, false, "%4d%c", (int)u_scale(ALTITUDE, osd->height_target/100), u_icon(ALTITUDE));
+}
+
 #define DRAW_SETTING(n) if (n.enabled) draw_ ## n(n.xpos, n.ypos)
 
 #if HAL_WITH_OSD_BITMAP || HAL_WITH_MSP_DISPLAYPORT
@@ -2212,6 +2233,7 @@ void AP_OSD_Screen::draw(void)
     DRAW_SETTING(flightime);
     DRAW_SETTING(clk);
     DRAW_SETTING(vtx_power);
+    DRAW_SETTING(hgt_tgt);
 
 #if HAL_WITH_ESC_TELEM
     DRAW_SETTING(esc_temp);

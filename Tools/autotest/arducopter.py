@@ -3409,6 +3409,101 @@ class AutoTestCopter(AutoTest):
         if ex is not None:
             raise ex
 
+    def LFSTest(self):
+        '''test warning of terrain approaching'''
+        ex = None
+        self.context_push()
+        self.set_parameters({
+            "TERRAIN_ENABLE": 1,
+            "LFS_ENABLE": 1,
+            "LFS_INTV_DIST": 30,
+            "LFS_INTV_TIME": 1000,
+            "LFS_MIN_DIST": 100,
+        })
+
+        self.install_terrain_handlers_context()
+
+        try:
+            # self.set_analog_rangefinder_parameters()
+            # self.set_parameter("RC9_OPTION", 10) # rangefinder
+            # self.set_rc(9, 2000)
+
+            self.reboot_sitl() # needed for both rangefinder and initial position
+            self.assert_vehicle_location_is_at_startup_location()
+            self.wait_ready_to_arm()
+
+            self.lfs_times = []
+            self.lfs_ground_position = None
+            def lfs_message_hook(mav, m):
+                if m.get_type()  != 'STATUSTEXT':
+                    return
+                if "sec to ground" in m.text:
+                    sec_to_ground = float(m.text.split()[0])
+                    self.lfs_times.append(sec_to_ground)
+                if "ground reached" in m.text and not self.lfs_ground_position:
+                    self.lfs_ground_position = self.mav.location()
+            def verify_lfs_times():
+                lfs_times_last = self.lfs_times[-8:]
+                for i in range(7,-1,-1):
+                    last_sec = 0
+                    if i == 7:
+                        assert lfs_times_last[i] <= 1
+                    else:
+                        assert lfs_times_last[i] - lfs_times_last[i+1] > 0.7 and lfs_times_last[i] - lfs_times_last[i+1] < 1.6, f"{lfs_times_last[i]},{last_sec}"
+            self.install_message_hook(lfs_message_hook)
+
+            self.progress("test status: taking off")
+            self.takeoff(10, mode="LOITER")
+
+            self.load_mission("wp.txt", strict=True)
+            self.change_mode('AUTO')
+            self.progress("test status: moving to 1st test position")
+            self.wait_current_waypoint(2, timeout=400)
+            self.progress("test status: 1st point reached, decending and waiting for terrain warning")
+
+            # reset the record
+            self.lfs_times = []
+            self.lfs_ground_position = None
+
+            self.wait_current_waypoint(3, timeout=100)
+            self.progress("test status: 2nd point reached, now the quad is behind terrain")
+            
+            # verify the time it reports
+            verify_lfs_times()
+            # SRTM3 says ~777m is when line of sight is broken, it is actually ~790m
+            assert self.lfs_ground_position.alt < 781 and self.lfs_ground_position.alt > 773
+
+            self.progress("test status: moving side way to regain line of sight")
+            self.wait_current_waypoint(4, timeout=400)
+            self.progress("test status: 3rd point reached, prepare to move behind terrain horizontally")
+
+            # reset the record
+            self.lfs_times = []
+            self.lfs_ground_position = None
+
+            self.wait_current_waypoint(5, timeout=120)
+            self.progress("test status: 4th point reached, now the quad is behine terrain")
+
+            # verify the time it reports
+            verify_lfs_times()
+            print(f"ground reached at {self.lfs_ground_position.lat} {self.lfs_ground_position.lng}")
+            loc = mavutil.location(-35.3820304, 149.1488721, 0, 0)
+            dist = self.get_distance(self.lfs_ground_position, loc)
+            assert dist < 5, f"too far from desired location: {dist}"
+
+            self.wait_waypoint(5,5, timeout=120)
+            self.progress("test status: test completed, returning")
+        except Exception as e:
+            self.print_exception_caught(e)
+            self.disarm_vehicle(force=True)
+            ex = e
+
+        self.do_RTL(timeout=400)
+        self.context_pop()
+        self.reboot_sitl()
+        if ex is not None:
+            raise ex
+
     def test_rangefinder_switchover(self):
         """test that the EKF correctly handles the switchover between baro and rangefinder"""
         ex = None
@@ -8996,6 +9091,7 @@ class AutoTestCopter(AutoTest):
              self.RangeFinder,
              self.BaroDrivers,
              self.SurfaceTracking,
+             self.LFSTest,
              self.Parachute,
              self.ParameterChecks,
              self.ManualThrottleModeChange,

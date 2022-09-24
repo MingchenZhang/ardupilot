@@ -43,6 +43,7 @@
 #include <AP_GyroFFT/AP_GyroFFT.h>
 #include <AP_VisualOdom/AP_VisualOdom.h>
 #include <AP_VideoTX/AP_VideoTX.h>
+#include <AP_LFS_Monitor/AP_LFS_Monitor.h>
 #include <AP_MSP/AP_MSP.h>
 #include <AP_Frsky_Telem/AP_Frsky_Parameters.h>
 #include <AP_ExternalAHRS/AP_ExternalAHRS.h>
@@ -369,6 +370,8 @@ protected:
 #if HAL_SMARTAUDIO_ENABLED
     AP_SmartAudio smartaudio;
 #endif
+
+    AP_LFS_Monitor lfs_monitor;
 
 #if HAL_EFI_ENABLED
     // EFI Engine Monitor

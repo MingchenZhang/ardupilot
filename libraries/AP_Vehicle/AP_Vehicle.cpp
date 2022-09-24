@@ -75,6 +75,10 @@ const AP_Param::GroupInfo AP_Vehicle::var_info[] = {
     AP_SUBGROUPINFO(airspeed, "ARSPD", 10, AP_Vehicle, AP_Airspeed),
 #endif
 
+    // @Group: LFS_
+    // @Path: ../AP_LFS_Monitor/AP_LFS_Monitor.cpp
+    AP_SUBGROUPINFO(lfs_monitor, "LFS_",  11, AP_Vehicle, AP_LFS_Monitor),
+
     AP_GROUPEND
 };
 
@@ -190,6 +194,8 @@ void AP_Vehicle::setup()
 #if HAL_SMARTAUDIO_ENABLED
     smartaudio.init();
 #endif
+
+    lfs_monitor.init();
 
 #if AP_PARAM_KEY_DUMP
     AP_Param::show_all(hal.console, true);

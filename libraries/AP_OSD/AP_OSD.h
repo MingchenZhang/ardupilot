@@ -198,6 +198,7 @@ private:
     AP_OSD_Setting fence{false, 14, 9};
     AP_OSD_Setting rngf{false, 0, 0};
     AP_OSD_Setting hgt_tgt{false, 0, 0};
+    AP_OSD_Setting lfs_ter_t{false, 0, 0};
 #if HAL_PLUSCODE_ENABLE
     AP_OSD_Setting pluscode{false, 0, 0};
 #endif
@@ -277,6 +278,7 @@ private:
     void draw_fence(uint8_t x, uint8_t y);
     void draw_rngf(uint8_t x, uint8_t y);
     void draw_hgt_tgt(uint8_t x, uint8_t y);
+    void draw_lfs_ter_t(uint8_t x, uint8_t y);
 
 
     struct {
@@ -471,6 +473,7 @@ public:
     AP_Int32 options;
     
     AP_Int32 height_target;
+    AP_Float lfs_terrain_time;
 
 #if OSD_ENABLED
     AP_Int8 rc_channel;

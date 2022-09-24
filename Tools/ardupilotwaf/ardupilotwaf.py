@@ -107,6 +107,7 @@ COMMON_VEHICLE_DEPENDENT_LIBRARIES = [
     'AP_WheelEncoder',
     'AP_ExternalAHRS',
     'AP_VideoTX',
+    'AP_LFS_Monitor',
     'AP_FETtecOneWire',
     'AP_Torqeedo',
 ]

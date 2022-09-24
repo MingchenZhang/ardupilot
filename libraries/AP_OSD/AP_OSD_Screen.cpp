@@ -37,6 +37,7 @@
 #include <AP_MSP/msp.h>
 #include <AP_OLC/AP_OLC.h>
 #include <AP_VideoTX/AP_VideoTX.h>
+#include <AP_LFS_Monitor/AP_LFS_Monitor.h>
 #include <AP_Terrain/AP_Terrain.h>
 #include <AP_RangeFinder/AP_RangeFinder.h>
 #include <AP_Vehicle/AP_Vehicle.h>
@@ -1014,6 +1015,22 @@ const AP_Param::GroupInfo AP_OSD_Screen::var_info[] = {
     // @Description: Vertical position on screen
     // @Range: 0 15
     AP_SUBGROUPINFO(hgt_tgt, "HGT_TGT", 61, AP_OSD_Screen, AP_OSD_Setting),
+    
+    // @Param: LFS_T_EN
+    // @DisplayName: LFS_T_EN
+    // @Description: Displays time to have line of sight sink into the ground
+    // @Values: 0:Disabled,1:Enabled
+
+    // @Param: LFS_T_X
+    // @DisplayName: LFS_T_X
+    // @Description: Horizontal position on screen
+    // @Range: 0 29
+
+    // @Param: LFS_T_Y
+    // @DisplayName: LFS_T_Y
+    // @Description: Vertical position on screen
+    // @Range: 0 15
+    AP_SUBGROUPINFO(lfs_ter_t, "LFS_T", 62, AP_OSD_Screen, AP_OSD_Setting),
 
     AP_GROUPEND
 };
@@ -2174,6 +2191,18 @@ void AP_OSD_Screen::draw_hgt_tgt(uint8_t x, uint8_t y)
     backend->write(x, y, false, "%4d%c", (int)u_scale(ALTITUDE, osd->height_target/100), u_icon(ALTITUDE));
 }
 
+void AP_OSD_Screen::draw_lfs_ter_t(uint8_t x, uint8_t y)
+{
+    int32_t ms = AP_LFS_Monitor::get_singleton()->lfs_terrain_ms;
+    if(ms > 99999) {
+        backend->write(x, y, false, "+++++");
+    } else if (ms < 0) {
+        backend->write(x, y, false, "GGGGG");
+    } else {
+        backend->write(x, y, false, "%2d.%ds", (int)(ms/1000), (int)((ms%1000)/100));
+    }
+}
+
 #define DRAW_SETTING(n) if (n.enabled) draw_ ## n(n.xpos, n.ypos)
 
 #if HAL_WITH_OSD_BITMAP || HAL_WITH_MSP_DISPLAYPORT
@@ -2234,6 +2263,7 @@ void AP_OSD_Screen::draw(void)
     DRAW_SETTING(clk);
     DRAW_SETTING(vtx_power);
     DRAW_SETTING(hgt_tgt);
+    DRAW_SETTING(lfs_ter_t);
 
 #if HAL_WITH_ESC_TELEM
     DRAW_SETTING(esc_temp);

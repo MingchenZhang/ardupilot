@@ -106,6 +106,11 @@ const AP_Param::GroupInfo AP_Vehicle::var_info[] = {
     // @Path: ../AP_OpenDroneID/AP_OpenDroneID.cpp
     AP_SUBGROUPINFO(opendroneid, "DID_", 15, AP_Vehicle, AP_OpenDroneID),
 #endif
+
+    // @Group: LFS_
+    // @Path: ../AP_LFS_Monitor/AP_LFS_Monitor.cpp
+    AP_SUBGROUPINFO(lfs_monitor, "LFS_",  16, AP_Vehicle, AP_LFS_Monitor),
+
     AP_GROUPEND
 };
 
@@ -221,6 +226,8 @@ void AP_Vehicle::setup()
 #endif
 
     vtx.init();
+    
+    lfs_monitor.init();
 
 #if HAL_SMARTAUDIO_ENABLED
     smartaudio.init();
